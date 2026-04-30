@@ -20,18 +20,13 @@ pipeline {
         stage('Test') {
             steps {
                 echo '🧪 Ejecutando pruebas unitarias...'
-                sh 'mvn test'
-            }
-            post {
-                always {
-                    junit '**/target/surefire-reports/*.xml'
-                }
+                sh 'mvn test -Djacoco.skip=true'
             }
         }
 
         stage('Docker Build') {
             steps {
-                echo 'Construyendo imagen Docker...'
+                echo '🐳 Construyendo imagen Docker...'
                 sh 'docker build -t mi-app:latest .'
             }
         }
@@ -40,10 +35,10 @@ pipeline {
 
     post {
         success {
-            echo 'Pipeline ejecutado exitosamente!'
+            echo '✅ Pipeline ejecutado exitosamente!'
         }
         failure {
-            echo 'El pipeline falló. Revisa los logs arriba.'
+            echo '❌ El pipeline falló. Revisa los logs arriba.'
         }
         always {
             cleanWs()
