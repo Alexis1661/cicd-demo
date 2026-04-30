@@ -1,89 +1,42 @@
+# CI/CD Demo Pipeline
 
-# CICD-DEMO
+## Descripción
+Pipeline completo de CI/CD implementado con Jenkins, SonarQube y Trivy.
 
-This project aims to be the basic skeleton to apply continuous integration and continuous delivery.
+## Flujo del Pipeline
 
-## Topology
+1. **Checkout** - Obtiene el código fuente desde GitHub
+2. **Build** - Compila la aplicación con Maven
+3. **Test** - Ejecuta pruebas unitarias (excluye SeleniumExampleTest)
+4. **Static Analysis** - Análisis de calidad con SonarQube
+5. **Security Scan** - Escaneo de vulnerabilidades con Trivy
+6. **Quality Gate** - Valida que el código pasa los estándares
+7. **Deploy** - Despliega el contenedor en el ambiente local
 
-CICD Demo uses some kubernetes primitives to deploy:
+## Infraestructura
 
-* Deployment
-* Services
-* Ingress ( with TLS )
+| Servicio | Puerto | Descripción |
+|---|---|---|
+| Jenkins | 8080 | Servidor CI/CD |
+| SonarQube | 9000 | Análisis de calidad |
+| Aplicación | 8081 | App desplegada |
 
-```bash
-     internet
-        |
-   [ Ingress ]
-   --|-----|--
-   [ Services ]
-   --|-----|--
-   [   Pods   ]
-
-```
-
-This project includes:
-
-* Spring Boot java app
-* Jenkinsfile integration to run pipelines
-* Dockerfile containing the base image to run java apps
-* Makefile and docker-compose to make the pipeline steps much simpler
-* Kubernetes deployment file demonstrating how to deploy this app in a simple Kubernetes cluster
-
-## Pipeline Setup
-
-Pipelines exist at Travis.
-
-Some pipelines are configured by **GitHub/Projects**. If you have created a repository in one of these, your project will be **automatically** built if it has a Jenkinsfile/Travis/Gitlab/CircleCI.
-
-Other pipelines are configured manually under folders. You can create a project manually with the following steps:
-
-How to run the app:
-
-```make
-make
-```
-
-## Testing
-
-Unit tests and integrations tests are separated using [JUnit Categories][].
-
-[JUnit Categories]: https://maven.apache.org/surefire/maven-surefire-plugin/examples/junit.html
-
-### Unit Tests
-
-```java
-mvn test -Dgroups=UnitTest
-```
-
-Or using Docker:
+## Cómo ejecutar
 
 ```bash
-make build
+# Levantar Jenkins
+docker run -d --name jenkins -p 8080:8080 jenkins/jenkins:lts
+
+# Levantar SonarQube  
+docker run -d --name sonarqube -p 9000:9000 sonarqube:lts-community
+
+# Conectar a la misma red
+docker network create ci-network
+docker network connect ci-network jenkins
+docker network connect ci-network sonarqube
 ```
 
-### Integration Tests
-
-```java
-mvn integration-test -Dgroups=IntegrationTests
-```
-
-Or using Docker:
-
-```bash
-make integrationTest
-```
-
-### System Tests
-
-System tests run with Selenium using docker-compose to run a [Selenium standalone container][] with Chrome.
-
-[Selenium standalone container]: https://github.com/SeleniumHQ/docker-selenium
-
-Using Docker:
-
-* If you are running locally, make sure the `$APP_URL` is populated and points to a valid instance of your application. This variable is populated automatically in Jenkins.
-
-```bash
-APP_URL=http://dev-cicd-demo-master.anzcd.internal/ make systemTest
-```
+## Decisiones técnicas
+- SeleniumExampleTest excluido por requerir servidor Selenium externo
+- JaCoCo deshabilitado por incompatibilidad con Java 21
+- Imagen base actualizada a eclipse-temurin:17 (openjdk:12-alpine descontinuada)
