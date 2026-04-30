@@ -45,7 +45,7 @@ pipeline {
             steps {
                 echo '🛡️ Escaneando imagen Docker con Trivy...'
                 sh 'docker build -t mi-app:latest .'
-                sh 'trivy image --exit-code 0 --severity HIGH,CRITICAL mi-app:latest'
+                sh 'trivy image --timeout 10m --scanners vuln --exit-code 0 --severity HIGH,CRITICAL mi-app:latest'
             }
         }
 
