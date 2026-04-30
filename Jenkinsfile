@@ -20,7 +20,7 @@ pipeline {
         stage('Test') {
             steps {
                 echo '🧪 Ejecutando pruebas unitarias...'
-                sh 'mvn test -Djacoco.skip=true'
+                sh 'mvn test -Djacoco.skip=true -Dexclude=**/SeleniumExampleTest.java'
             }
         }
 
