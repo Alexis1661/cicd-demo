@@ -70,7 +70,6 @@ pipeline {
         }
 
         stage('Deploy') {
-            when { branch 'main' }
             steps {
                 echo '🚀 Desplegando aplicación...'
                 sh 'docker stop mi-app-container || true'
